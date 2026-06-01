@@ -1,0 +1,130 @@
+SECURE CRYPTOGRAPHIC KEY MANAGEMENT SYSTEM FOR EMRs
+Student Presentation Script (Easy Language)
+
+1) What is this project?
+This project is a security system for Electronic Medical Records (EMRs).
+The goal is to protect patient data so that:
+- the real medical record cannot be easily read by attackers,
+- encryption keys are handled safely (so keys are not exposed),
+- every important action is recorded in an audit log for accountability,
+- the audit log itself is also protected (encrypted) so it cannot be read or tampered with easily.
+
+2) What does the system do?
+The system uses two services:
+
+A) Core Medical Application API (Core App)
+- This is the main API that handles EMR records.
+- It allows “tenants” (clinics/organizations) to be provisioned.
+- It lets you create and access records.
+- When a record is created, the record’s encrypted data is stored.
+
+B) Key Management Server (KMS)
+- This is a separate service that manages encryption keys.
+- It generates a Data Encryption Key (DEK).
+- It protects the DEK using RSA encryption under the tenant’s key.
+- It can decrypt (recover) the DEK when needed.
+
+3) How does encryption work here? (Simple explanation)
+The project uses a common secure design called “envelope encryption”:
+
+Step 1: Data encryption (protect the EMR content)
+- The actual EMR data is encrypted using AES-256-GCM.
+- AES-GCM is strong because it also detects tampering.
+  If someone changes the ciphertext, decryption will fail.
+
+Step 2: Key protection (protect the DEK)
+- The DEK is encrypted using RSA-OAEP under the tenant master key.
+- This means the DEK is not stored in plain form.
+
+Step 3: Encrypted audit logs (protect what happened)
+- Whenever important actions happen (like record_created or dek_generated),
+  the system writes an audit entry.
+- The audit log entries are encrypted too (AES-256-GCM).
+- The audit log is stored as encrypted binary “frames” so that:
+  - confidentiality is protected,
+  - integrity is protected (tampering prevents successful decryption).
+
+4) How does this help people?
+This project helps people—especially clinics and patients—by improving trust and safety in healthcare systems:
+
+- Protects patient privacy:
+  Encrypted EMR data reduces the chance of reading sensitive information if data is leaked.
+
+- Reduces damage from key exposure:
+  Keys are protected through separation (Core App vs KMS) and encryption of DEKs.
+
+- Improves accountability:
+  Encrypted audit logs help track actions without exposing sensitive details.
+
+- Supports multiple clinics (tenants):
+  Each clinic/tenant can have separate key material, helping reduce cross-tenant risk.
+
+5) What are the main components/endpoints to demonstrate?
+You can demonstrate the project by calling these API endpoints.
+
+Core App (runs on port 8000 in the runbook):
+1) Provision a tenant
+- POST /v1/admin/tenants/{tenant_id}/provision
+
+2) Create a record (encrypted record metadata)
+- POST /v1/tenants/{tenant_id}/records
+Requires:
+- Authorization: Bearer <JWT token>
+Request body includes encrypted parts:
+- ciphertext_hex, iv_hex, tag_hex, and encrypted_dek_hex
+
+3) Get a record
+- GET /v1/tenants/{tenant_id}/records/{record_id}
+
+Key Management Server (runs on port 8001):
+1) Generate DEK (Data Encryption Key)
+- POST /v1/tenants/{tenant_id}/dek/generate
+
+2) Decrypt DEK
+- POST /v1/tenants/{tenant_id}/dek/decrypt
+
+3) Rotate tenant master keys
+- POST /v1/tenants/{tenant_id}/master-keys/rotate
+
+6) How do you navigate through the project during your presentation?
+Because this is an API-based prototype, “navigation” means making API calls and showing the results.
+
+A simple presentation flow:
+Step A: Start Core App and KMS
+- Run Core App (FastAPI).
+- Run KMS (FastAPI).
+
+Step B: Provision tenant in Core App
+- Call provision endpoint.
+- Mention: it prepares the tenant environment.
+
+Step C: Generate DEK in KMS
+- Call dek/generate endpoint.
+- Mention: KMS creates DEK and encrypts it with tenant master key.
+
+Step D: Create an encrypted record in Core App
+- Call records endpoint with encrypted payload parts and JWT.
+- Mention: Core App stores encrypted record metadata.
+
+Step E: Verify encrypted audit logs
+- Encrypted audit logs are written to:
+  - logs/core_audit.enc.log (Core App)
+  - logs/kms_audit.enc.log (KMS)
+- During testing, the encrypted log frames can be decrypted and checked.
+  You can also show sample decrypted JSON audit records in your report.
+
+7) Where to show images in your report (suggestions)
+In Chapter 4, add images such as:
+- Screenshot of API responses (status_code=200 / response JSON)
+  Place in Section 4.2 Testing Results.
+- Screenshot of the log files directory and file names:
+  logs/core_audit.enc.log and logs/kms_audit.enc.log
+  Place in Section 4.1 Implementation (Audit logging).
+- Architecture diagram:
+  Core App → KMS → Audit logging → Encrypted records
+  Place in Section 4.1 Implementation.
+
+8) One-minute closing statement (what you can say)
+“In this project, I built a secure EMR key management system where encryption is protected using envelope encryption, keys are handled through a separate KMS service, and every sensitive action is recorded in encrypted audit logs with integrity protection. I also implemented automated tests to verify the encrypted audit logs and show that tampering breaks decryption.”
+
+END

@@ -1,0 +1,203 @@
+Research Project Writing Guidelines 2024 version423 — Summary
+
+1) What the report is
+- A postgraduate computing report presents results of a research investigation:
+  problem finding, data gathering, literature reviewing, methodology mapping, development/implementation, results interpreting, and documenting/summarizing conclusions and recommendations.
+- The report can be a Thesis/Dissertation/Research Project, depending on degree level.
+
+2) Core specifications
+- Research Title:
+  - Must encapsulate the essence of the work in the fewest words.
+  - Maximum of 20 words.
+- Paper quality:
+  - Not less than 75g/m².
+  - A4 paper size (8.27 in × 11.69 in).
+- Margins:
+  - Left margin: 1.25 inches.
+  - Right, top, bottom margins: 1.0 inch each.
+- Document format:
+  - Consistent formatting throughout.
+  - Times New Roman, font size 12 for most content.
+  - Double line spacing for most of the document.
+  - Abstract and references should use single-line spacing.
+
+3) Headings and typography
+- Main headings:
+  - Times New Roman, size 14
+  - center alignment
+  - bold formatting
+- Other headings:
+  - Times New Roman, size 12
+  - multi-level numbering system as per the sample.
+- Language:
+  - British English only (no American English variant).
+- Paragraphing:
+  - block paragraphing: separate paragraphs with a single line space (no indentation).
+- Mathematical notations/equations:
+  - clear and consistent style
+  - all equations must be numbered.
+
+4) Pagination
+- Preliminary pages:
+  - Roman numerals (i, ii, iii, iv …)
+- Chapter One and beyond:
+  - Arabic numerals (1, 2, 3 …)
+
+5) Figures and tables (captions & numbering)
+- Every figure/table/drawing must have a self-explanatory caption.
+- Numbering must follow the chapter it belongs to (e.g., 1.2, 2.2, 3.2, 4.4 …).
+- Caption style:
+  - follow APA 7th edition style guidelines.
+- Placement rules:
+  - Tables and figures may be integrated in the body or placed after the references section.
+  - If on separate pages, tables precede figures.
+- Label placement:
+  - Table number above the table (left margin, bold).
+  - Figure number below the figure (left margin, bold).
+  - Title located one double-space below the table/figure number.
+
+6) Referencing and citations
+- Referencing style:
+  - APA 7th edition
+- In-text citations:
+  - include citations in-line in the body of the work
+  - two types:
+    - Parenthetical: (Author, Year)
+    - Narrative: Author (Year) in the sentence
+- Reference list/bibliography:
+  - include a comprehensive list at the end of the document after Chapter Five.
+- Source quality:
+  - use reliable, verifiable sources (published articles, books, whitepapers).
+  - avoid referencing web pages and non-peer-reviewed publications when possible.
+- Encourage citation tools:
+  - Zotero, Mendeley, Citeulike, BibMe, RefWorks, EndNote.
+
+7) Reference count & recency requirements
+- Minimum references:
+  - PGD: at least 25 references
+  - Masters: at least 35 references
+  - PhD: not explicitly stated in the extracted portion, but follows thesis expectations.
+- Recency:
+  - > 70% should be within the preceding 5 years.
+
+8) Report length requirements (by level)
+- PGD: 10,000–20,000 words
+- Masters: 15,000–30,000 words
+- PhD: above 35,000 words
+
+9) Recommended main body structure (Chapters)
+- Abstract
+- Chapter One: Introduction
+- Chapter Two: Literature Review
+- Chapter Three: System Design and Methodology / Research Methodology
+- Chapter Four: Implementation and Testing / Results and Discussion
+- Chapter Five: Discussion, Summary, Conclusion and Recommendation
+- References
+- Appendices (if any)
+
+10) Standard organization sequence (front matter)
+Typical order:
+- Cover Page
+- Title Page
+- Declaration Page
+- Certification Page
+- Acknowledgment
+- Table of Contents (reflecting only 1st, 2nd, and 3rd tier headings)
+- List of Figures / List of Tables
+- List of Cases/Statutes (if applicable)
+- Double line spacing for most of these
+- List of Plates, List of Symbols
+- List of Appendices (if any)
+- Optional: Abbreviations, Definitions, Glossary
+- Abstract
+- Then Chapter One …
+
+11) Abstract requirements
+- Max word limits:
+  - depends on degree type (Thesis/Dissertation/Project) as stated in the guideline:
+    - Maximum of 750/500/350 words (depending on level/type)
+- Must include:
+  - concise account of the project
+  - objective
+  - method used
+  - major findings
+  - major recommendations
+- Notes:
+  - single-spaced
+  - as italics paragraph
+  - avoid citations in the abstract
+  - avoid abbreviations or explain at first use.
+
+12) Chapter-level expectations (key points)
+Chapter One (Introduction):
+- Background of Study
+- Statement of Problem:
+  - addresses what/why/when/where/who/how
+- Research Question
+- Aim and Objectives:
+  - quantifiable verbs; phrased like:
+    “To design…”, “To implement…”, “To integrate…”, “To evaluate…”, etc.
+- Significance of the Study
+- Scope of study
+- Organization of the study
+
+Chapter Two (Literature Review):
+- critical and comprehensive examination of existing research and scholarly literature
+- logically arranged and up to date
+- introduction to research topic, historical context
+- theoretical framework (fewer theoretical frameworks; only those relevant)
+- key concepts and definitions with citations
+- methodologies and research designs with citations
+- empirical studies with citations
+- conceptual frameworks
+- debates/controversies and gaps
+- related works (minimum number of reviewed journals) and thematic/chronological organization
+
+Chapter Three (System Design and Methodology / Research Methodology):
+- research approach (quantitative/qualitative/mixed)
+- research questions & hypotheses
+- research design:
+  experimental/descriptive/exploratory (as applicable)
+- software development methodology (Agile/Waterfall/Scrum/DevOps) and explain adaptation to the specific goals
+- data collection methods
+- ethical considerations
+- tools and software
+- research timeline
+- data presentation
+- methodology for software development: include objectives, evaluation plan, development process, metrics, evaluation criteria, ethical considerations
+- software/system design requirements:
+  - review of methodologies (at least 4)
+  - adopted/adapted methodology and why
+  - system architecture/workflow
+  - system modelling (at least 3 UML diagrams such as use case, activity, DFD, sequence, class, etc.)
+  - system requirements (functional/non-functional; MoSCoW recommended)
+  - interface design
+  - database schema design
+
+Chapter Four (Implementation and Testing / Results and Discussion):
+- explain implementation (including database if used, with screenshots)
+- testing:
+  - demonstrate how functional + non-functional requirements are met
+  - testing types to describe:
+    unit/integration/performance/usability/UAT/system tests
+- discuss testing environment and test data/scenarios
+- results presentation and performance/system evaluation
+- discussion:
+  - relate results to objectives
+  - compare with prior work
+  - justify agreements/disagreements
+
+Chapter Five (Summary, Conclusion and Recommendation):
+- summary: highlights of major findings + how each objective was met
+- conclusion: inference drawn from analysed data
+- recommendations: precise, based on major findings; include areas for further research
+
+13) Appendices
+- Appendices are identified with letters (A, B, C …).
+- Documents that must be included as appendices (per extracted guideline):
+  - Project Proposal including original plan
+  - First Progress Review Report
+  - code/artefact
+  - any other important validation document(s)
+
+End of summary.

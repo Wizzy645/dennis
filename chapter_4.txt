@@ -1,0 +1,197 @@
+  CHAPTER FOUR
+  IMPLEMENTATION AND TESTING / RESULTS AND DISCUSSION
+
+  4.1 Implementation
+  This project implements a Secure Cryptographic Key Management System for Electronic Medical Records (EMRs) with two cooperating services:
+  - Core Medical Application API (Core App) responsible for provisioning tenants, creating EMR records, and retrieving record metadata.
+  - Standalone Key Management Server (KMS) responsible for generating and decrypting tenant-specific encryption keys and producing Data Encryption Keys (DEKs).
+
+  4.1.1 Core App (Core Medical Application API)
+  Core App is a FastAPI service that exposes endpoints for:
+  1) Tenant provisioning: establishes an in-memory record store per tenant.
+  2) Record creation: accepts pre-encrypted payload components (ciphertext, IV, and tag) and stores them with a new record_id.
+  3) Record retrieval: returns stored encrypted metadata for a specific record_id.
+
+  Security mechanism in Core App:
+  - Payload encryption is AES-256-GCM (envelope encryption approach).
+  - Each record is associated with encrypted key material produced by KMS (DEK encrypted under tenant master key; in this implementation, only the encrypted DEK is carried in request/response).
+
+  Core storage model:
+  - The project uses an in-memory dictionary to store records by tenant_id and record_id.
+  - While this is acceptable for demonstration and testing, a production deployment should store encrypted record metadata in a database and enforce access control with persistent tenant state.
+
+  4.1.2 KMS (Key Management Server)
+  KMS is a FastAPI service providing endpoints for:
+  1) Master key rotation for a tenant.
+  2) DEK generation for a tenant.
+  3) DEK decryption for a tenant.
+
+  Tenant master key handling (prototype):
+  - The tenant master key pair is generated and stored in-memory when the tenant_id is first encountered.
+  - The master key generation uses RSA (4096-bit), with:
+    - Public key used to encrypt DEK via RSA-OAEP.
+    - Private key used to decrypt the encrypted DEK.
+
+  DEK handling:
+  - DEK is a 256-bit AES key generated for envelope encryption.
+  - RSA-OAEP (with SHA-256) is used to encrypt/decrypt the DEK.
+
+  4.1.3 Audit Logging & Encrypted Audit Records
+  To support auditability without exposing sensitive information in logs, the system implements encrypted audit logging:
+  - Audit records are serialized as JSON using a structured formatter.
+  - Each audit message is encrypted using AES-256-GCM (AESGCM) with:
+    - Fresh randomly generated nonce per log message.
+    - Authentication tag produced and implicitly bound by GCM.
+  - Encrypted audit logs are written to disk as length-prefixed binary frames:
+    [4-byte nonce length][nonce][4-byte ciphertext length][ciphertext]
+
+  Key design goal:
+  - Audit log confidentiality and integrity are protected; tampering with ciphertext/nonces should prevent successful decryption and parsing.
+
+  Sensitive data redaction:
+  - Known private-key markers in log messages are redacted through a filter to reduce accidental key leakage.
+
+  Plaintext fallback behavior (controlled):
+  - The system supports a plaintext fallback mechanism only when explicitly enabled.
+  - By default the design is fail-closed: if encrypted audit initialization fails, the service should not silently write plaintext audit logs.
+
+  4.1.4 Logging Implementation Details
+  The audit logger is created via a shared secure logging module.
+  Key operational properties:
+  - The logger includes both:
+    - A console handler (structured JSON for development visibility).
+    - An encrypted file handler for audit confidentiality.
+  - Handler initialization is intended to be idempotent to avoid duplicated audit entries.
+
+  Where to show images in Chapter 4 (Implementation)
+  Insert/Place these figures in Chapter 4:
+  - Figure 4.1: System Architecture Diagram
+    Placement: Section 4.1 (Implementation)
+    Caption suggestion: “Architecture overview of Core App, KMS, audit logging, and data flow.”
+    Include: Core App ↔ KMS interactions, audit logging path, encryption flow (AES-GCM + RSA-OAEP).
+
+  - Figure 4.2: Core App API Endpoint Flow / Sequence Diagram
+    Placement: After describing Core App endpoints (Section 4.1.1)
+    Caption suggestion: “Sequence for record creation: authentication → principal checks → record_created audit event.”
+
+  - Figure 4.3: KMS Endpoint Flow / Sequence Diagram
+    Placement: After describing KMS endpoints (Section 4.1.2)
+    Caption suggestion: “Sequence for DEK generation and encryption under tenant master key (RSA-OAEP).”
+
+  - Figure 4.4: Encrypted Audit Log Frame Format
+    Placement: After describing encrypted audit logging (Section 4.1.3)
+    Caption suggestion: “Encrypted audit log binary framing: nonce length, nonce, ciphertext length, ciphertext.”
+
+  - Figure 4.5: Screenshot(s) of log output or directory structure
+    Placement: Near Section 4.1.4
+    Caption suggestion: “Encrypted audit logs stored on disk and structured console audit output.”
+    
+  4.2 System Testing
+  Testing aims to verify:
+  - Correctness of encrypted audit log record production.
+  - Integrity protection: tampering should prevent decryption.
+  - Correct application behavior and audit event emission when endpoints are called.
+  - Authentication and authorization behavior (JWT validation; tenant checks).
+  - Reliability of test execution across platforms (Windows file handle issues).
+
+  4.2.1 Testing Approach and Methodology
+  Testing strategy combines:
+  1) Unit/Component testing through direct cryptographic validation of the encrypted log frames.
+  2) Integration-like testing using FastAPI TestClient:
+    - Requests are executed against the Core App and KMS apps.
+    - Audit logger is patched to write to a test-specific encrypted log file.
+  3) Environment variable control:
+    - `LOG_ENCRYPTION_KEY` must be set in the test environment to enable decrypting audit logs during verification.
+    - `JWT_SHARED_SECRET` must be set so JWT validation can succeed during core endpoint testing.
+
+  4.2.2 Test Environment
+  Test environment components:
+  - Python runtime (project dependencies include FastAPI, cryptography, and unittest/pytest ecosystem).
+  - FastAPI TestClient for endpoint invocation.
+  - Temporary directories for isolated encrypted log file creation.
+  - AESGCM decryption logic in tests to validate that audit frames are decryptable and tamper-evident.
+
+  4.2.3 Functional Testing (Endpoints)
+  Core App endpoints tested include:
+  - Tenant provisioning endpoint:
+    - Verifies that a successful response is returned.
+    - Verifies that an audit record with expected message and tenant context is emitted.
+
+  - Record creation endpoint:
+    - Verifies status code success when a valid JWT is used and tenant matches.
+    - Verifies that an audit record with message `record_created` and the correct tenant_id context exists.
+
+  KMS endpoints tested include:
+  - DEK generation endpoint:
+    - Verifies success response.
+    - Verifies audit record `dek_generated` with expected tenant_id context.
+
+  4.2.4 Security Testing (Encrypted Log Integrity)
+  Security-oriented tests include:
+  - Tamper detection test:
+    - After encrypting logs, the test flips a byte in the encrypted log file.
+    - Decryption should fail, proving that AES-GCM integrity protects audit records.
+
+  - Frame boundary tamper test:
+    - The test corrupts the length prefix (nonce length / frame boundary).
+    - This should break parsing/decryption and confirms correctness of framing logic.
+
+  4.2.5 Reliability Testing (Handler Duplication and Cleanup)
+  To avoid flaky tests and duplicated frames:
+  - Tests ensure encrypted audit handler initialization does not create multiple handlers that produce duplicate log frames.
+  - Tests also ensure proper handler closing and cleanup:
+    - Prevents Windows PermissionError caused by open file handles.
+
+  4.3 Results Presentation
+  This section records the observed results from running the test suite.
+
+  Recommended to include the following items in Chapter 4:
+  - Table 4.1: Summary of tests executed
+    Columns:
+    - Test name
+    - Type (functional/security/reliability)
+    - Expected outcome
+    - Actual outcome
+
+  - Figure 4.2: Sample decrypted JSON audit record (redacted if needed)
+    Placement: after the test discussion
+    Caption suggestion: “Example structure of decrypted audit record fields.”
+
+  - Table 4.2: Audit message coverage map
+    Map expected audit messages to endpoints:
+    - tenant_provisioned
+    - record_created
+    - record_accessed (if tested)
+    - dek_generated
+    - dek_decrypted (if tested)
+
+  Where to show images in Chapter 4 (Testing)
+  - Figure 4.6: Screenshot of passing test output
+    Placement: End of Section 4.3 (Results)
+    Caption suggestion: “Unit/integration test execution results.”
+
+  4.4 Discussion
+  The discussion connects the observed results to the project objectives:
+
+  Objective alignment:
+  - Confidentiality: Encrypted audit logs use AES-256-GCM so that audit content is not stored in readable form.
+  - Integrity: AES-GCM authentication ensures tampering with encrypted frames prevents decryption.
+  - Auditability: Audit logs provide structured JSON fields including:
+    - timestamp (ts)
+    - log level (lvl)
+    - message (msg)
+    - logger name (logger)
+    - source file:line (src)
+    - contextual metadata (ctx) such as tenant_id and record_id.
+
+  Key limitations (prototype scope):
+  - In-memory data stores for records and master keys reduce realism and persistence.
+  - Production design should add:
+    - persistent database for tenant state
+    - secure key storage (HSM / KMS / protected key vault)
+    - strict operational controls and monitoring
+
+  Conclusion of Chapter 4:
+  - The implemented system successfully demonstrates encrypted audit logging with integrity protection and verifies expected audit events during endpoint usage through automated tests.
+
+  END OF CHAPTER FOUR

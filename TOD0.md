@@ -1,0 +1,14 @@
+- [ ] Update `apps/shared/secure_logging.py`:
+  - [ ] Add `ALLOW_PLAINTEXT_AUDIT_FALLBACK` env var (default fail-closed).
+  - [ ] Make `get_audit_logger()` idempotent (dedupe console + encrypted handlers robustly).
+- [x] Update `tests/test_audit_logging.py`:
+  - [x] Add tamper detection test (flip a byte in encrypted log and ensure decrypt fails).
+  - [x] Add handler duplication test (ensure only one handler writes frames).
+- [ ] Add more security assurance tests:
+  - [ ] KMS decrypt endpoint failure: missing/invalid `encrypted_dek_hex`.
+  - [ ] JWT auth failure: missing Authorization header / bad token.
+  - [ ] Tenant mismatch failure (403) on record access.
+  - [ ] Audit integrity: corrupt length-prefix frame boundaries and assert decrypt fails.
+- [ ] Run tests:
+  - [ ] `pytest -q`
+  - [ ] Fix any regressions.
