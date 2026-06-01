@@ -53,23 +53,23 @@ python -m pip install -r requirements.txt
 In PowerShell (same window you’ll run commands from), set:
 
 ```powershell
-export JWT_SHARED_SECRET = 'dev_secret_key_hr7382yhf9283yhf'
-export JWT_ISSUER = 'local-emr-auth-service'
+export JWT_SHARED_SECRET='dev_secret_key_hr7382yhf9283yhf'
+export JWT_ISSUER='local-emr-auth-service'
 
 # PostgreSQL connection used by Core API to provision and connect to per-tenant DBs
-export POSTGRES_HOST = '127.0.0.1'
-export POSTGRES_PORT = '5432'
-export POSTGRES_USER = 'postgres'
-export POSTGRES_PASSWORD = 'Godisgood1.'
-export POSTGRES_SSLMODE = 'prefer'
-export TENANT_DB_PREFIX = 'emr_'
-export LOG_ENCRYPTION_KEY = "kTOuXk9feQHpXZMQeUdbLM35gsApgD8A0G9e8nyMoyY="
+export POSTGRES_HOST='127.0.0.1'
+export POSTGRES_PORT='5432'
+export POSTGRES_USER='postgres'
+export POSTGRES_PASSWORD='Godisgood1.'
+export POSTGRES_SSLMODE='prefer'
+export TENANT_DB_PREFIX='emr_'
+export LOG_ENCRYPTION_KEY="kTOuXk9feQHpXZMQeUdbLM35gsApgD8A0G9e8nyMoyY="
 
 # KMS database connection (stores tenant master keys + audit events)
-export KEY_SERVER_DB_DSN = 'postgresql://postgres:Godisgood1.@127.0.0.1:5432/postgres?sslmode=prefer'
+export KEY_SERVER_DB_DSN='postgresql://postgres:Godisgood1.@127.0.0.1:5432/postgres?sslmode=prefer'
 
 # Where Core API calls the KMS
-export KEY_SERVER_BASE_URL = 'http://127.0.0.1:8001'
+export KEY_SERVER_BASE_URL='http://127.0.0.1:8001'
 ```
 
 ## 4) Quick verification (one command)
